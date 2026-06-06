@@ -472,6 +472,79 @@ def 导出为CSV():
     print()
 
 
+def 导出为Markdown():
+    """
+    将最近 7 天的周报导出为排版精美的 Markdown 文件。
+    生成的文件可以直接贴到 GitHub Issue / PR / Wiki 中显示。
+    """
+    print()
+    画分割线("=", 50)
+    print("  [导出]  导出周报为 Markdown 文件")
+    画分割线("=", 50)
+    print()
+
+    确保文件存在()
+
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        全部内容 = f.read()
+
+    if 全部内容.strip() == "":
+        print("  [空] 还没有任何工作记录，无法导出。")
+        print()
+        return
+
+    # 计算最近 7 天的日期
+    今天 = datetime.now()
+    最近七天日期 = []
+    for i in range(7):
+        某天 = 今天 - timedelta(days=i)
+        最近七天日期.append(某天.strftime("%Y-%m-%d"))
+
+    # 筛选记录
+    所有记录 = 全部内容.strip().split("\n\n")
+    找到的记录 = []
+    for 记录 in 所有记录:
+        记录日期 = 从记录中提取日期(记录)
+        if 记录日期 and 记录日期 in 最近七天日期:
+            找到的记录.append(记录)
+
+    if len(找到的记录) == 0:
+        print("  [空] 最近 7 天还没有工作记录。")
+        print()
+        return
+
+    # 生成 Markdown 文件
+    MD文件名 = f"周报_{获取今天的日期()}.md"
+    with open(MD文件名, "w", encoding="utf-8") as f:
+        f.write(f"# 工作周报\n\n")
+        f.write(f"> 生成日期：{获取今天的日期_显示用()} {获取星期几()}\n\n")
+        f.write(f"> 统计周期：最近 7 天（共 {len(找到的记录)} 条记录）\n\n")
+        f.write("---\n\n")
+        f.write("## 本周工作记录\n\n")
+        f.write("| 日期 | 工作内容 |\n")
+        f.write("|------|----------|\n")
+
+        for 记录 in reversed(找到的记录):
+            行列表 = 记录.split("\n")
+            第一行 = 行列表[0].strip()
+
+            # 格式化日期
+            日期显示 = 格式化日期显示用(第一行)
+
+            # 工作内容
+            内容行列表 = [行.strip() for 行 in 行列表[1:] if 行.strip()]
+            工作内容显示 = "<br>".join(内容行列表)  # Markdown 表格内换行用 <br>
+
+            f.write(f"| {日期显示} | {工作内容显示} |\n")
+
+        f.write("\n---\n\n")
+        f.write("*本报告由 [周报助手](https://github.com/kuikuikui/weekly-report) 自动生成。*\n")
+
+    print(f"  [完成] 已导出到 {MD文件名}")
+    print(f"  你可以用记事本打开它，或直接贴到 GitHub 上！")
+    print()
+
+
 # ============================================================
 # 菜单和主程序
 # ============================================================
@@ -492,6 +565,7 @@ def 显示菜单():
     print("  |   4. [查] 按日期查找记录                   |")
     print("  |   5. [退] 退出程序                         |")
     print("  |   6. [实验] 导出为 CSV 文件（测试中）      |")
+    print("  |   7. [导出] 导出周报为 Markdown 文件        |")
     print("  |                                            |")
     print("  +--------------------------------------------+")
 
@@ -532,9 +606,11 @@ def 主程序():
             break
         elif 选择 == "6":
             导出为CSV()
+        elif 选择 == "7":
+            导出为Markdown()
         else:
             print()
-            print("  [警告] 输入有误，请输入 1 - 6！")
+            print("  [警告] 输入有误，请输入 1 - 7！")
 
 
 # ============================================================
