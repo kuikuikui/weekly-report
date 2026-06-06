@@ -1,0 +1,11 @@
+# PyInstaller 构建产物
+build/
+dist/
+*.spec
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 数据文件（用户自己生成的）
+weekly_report.txt
